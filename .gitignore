@@ -137,3 +137,35 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# ParaKeyt specific
+# Build outputs
+frontend/build/
+backend/dist/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Configuration files (keep examples)
+config.json
+!config.example.json
+
+# Generated documentation
+docs/generated/
+
+# Temporary files
+*.tmp
+*.temp
