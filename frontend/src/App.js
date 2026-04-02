@@ -22,21 +22,29 @@ function App() {
   } = useKeyboardState();
 
   const handleGenerateJSON = async () => {
+    const config = generateConfiguration(mcu, split, tilt, keys);
+    console.log("Generated JSON:", config);
+    
     try {
-      const config = generateConfiguration(mcu, split, tilt, keys);
-      console.log("Generated JSON:", config);
-      
       const response = await uploadConfiguration(config);
       console.log("Server response:", response);
       
-      if (response.success) {
-        alert(`Configuration saved to: ${response.path || 'backend/config.json'}`);
-      } else {
-        alert(`Save failed: ${response.error || 'Unknown error'}`);
+      if (response.output) {
+        const parts = response.output.split("\n---CONFIG---\n");
+        const configJson = parts[1] || response.output;
+        
+        const blob = new Blob([configJson], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'config.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       }
     } catch (error) {
-      console.error("Error saving configuration:", error);
-      alert("Error saving configuration. Make sure the backend is running (cd backend && npm start)");
+      console.error("Error saving to backend:", error);
     }
   };
 

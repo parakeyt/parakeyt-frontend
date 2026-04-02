@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
-const spawn = require("child_process")
+const { spawn } = require("child_process")
 
 const app = express();
 
@@ -48,25 +48,23 @@ app.post("/upload-config", (req, res) => {
     console.log("Config saved to:", CONFIG_PATH);
     console.log("Config contents:", config);
 
-    let child = spawn("python", ["-c", "from time import sleep; print('hi'); sleep(1); print('hi')"])
+    let child = spawn("python3", ["-c", "from time import sleep; print('hi'); sleep(1); print('hi')"])
+    
     res.writeHead(200, {
       'Content-Type': 'text/plain; charset=utf-8',
       'Transfer-Encoding': 'chunked'
     });
 
     child.stdout.on("data", (data) => {
-      res.write(data)
-    })
+      console.log("Stream output:", data.toString());
+      res.write(data);
+    });
     
     child.on("close", () => {
-      res.end()
-    })
-    
-    // res.json({ 
-    //   success: true, 
-    //   message: "Configuration saved successfully",
-    //   path: CONFIG_PATH
-    // });
+      res.write("\n---CONFIG---\n");
+      res.write(jsonString);
+      res.end();
+    });
   } catch (error) {
     console.error("Error processing configuration:", error);
     res.status(500).json({ 

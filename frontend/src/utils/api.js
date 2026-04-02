@@ -2,7 +2,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:300
 
 export const sanitizeNumber = (value) => value === '' ? 0 : value;
 
-export const uploadConfiguration = async (config) => {
+export const uploadConfiguration = async (config, onStreamData) => {
   try {
     console.log('Attempting to upload to:', `${API_BASE_URL}/upload-config`);
     console.log('Configuration data:', config);
@@ -24,9 +24,23 @@ export const uploadConfiguration = async (config) => {
       throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    console.log('Response data:', data);
-    return data;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullOutput = '';
+    
+    console.log('--- Stream Output ---');
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      const text = decoder.decode(value, { stream: true });
+      console.log(text);
+      fullOutput += text;
+      if (onStreamData) onStreamData(text);
+    }
+    console.log('--- End Stream ---');
+
+    return { success: true, output: fullOutput };
   } catch (error) {
     console.error('Detailed error uploading configuration:', error);
     
@@ -39,7 +53,24 @@ export const uploadConfiguration = async (config) => {
 };
 
 export const generateConfiguration = (mcu, split, tilt, keys) => {
+  let maxWidth = 0;
+  let maxHeight = 0;
+  
+  keys.forEach(key => {
+    const x = sanitizeNumber(key.x);
+    const y = sanitizeNumber(key.y);
+    const size = sanitizeNumber(key.size);
+    
+    const keyRight = x + size;
+    const keyBottom = y + 1;
+    
+    if (keyRight > maxWidth) maxWidth = keyRight;
+    if (keyBottom > maxHeight) maxHeight = keyBottom;
+  });
+
   return {
+    width: maxWidth,
+    height: maxHeight,
     mcu: {
       pos: {
         x: sanitizeNumber(mcu.pos.x),
