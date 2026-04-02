@@ -36,12 +36,12 @@ function App() {
       });
       
       if (response.success) {
-        const fileResponse = await fetch("http://localhost:3001/download/config.json");
+        const fileResponse = await fetch("http://localhost:3001/download/backend/output.zip");
         const blob = await fileResponse.blob();
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'config.json';
+        link.download = 'output.zip';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

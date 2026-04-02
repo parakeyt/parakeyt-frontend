@@ -48,7 +48,10 @@ app.post("/upload-config", (req, res) => {
     console.log("Config saved to:", CONFIG_PATH);
     console.log("Config contents:", config);
 
-    let child = spawn("python3", ["-c", "from time import sleep; print('hi'); sleep(1); print('hi') "])
+    console.log("starting")
+    let child = spawn("python3", ["../../parakeyt-docs/pipeline/parakeyt_pipeline.py", CONFIG_PATH])
+
+    console.log("started", child)
     
     res.writeHead(200, {
       'Content-Type': 'text/plain; charset=utf-8',
@@ -57,6 +60,10 @@ app.post("/upload-config", (req, res) => {
 
     child.stdout.on("data", (data) => {
       console.log("Stream output:", data.toString());
+      res.write(data);
+    });
+    child.stderr.on("data", (data) => {
+      console.log("Stream error:", data.toString());
       res.write(data);
     });
     
@@ -89,6 +96,7 @@ app.get("/config", (req, res) => {
 app.get("/download/:filename", (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, "..", filename);
+  console.log(filePath)
   
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ success: false, error: "File not found" });
