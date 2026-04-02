@@ -61,8 +61,6 @@ app.post("/upload-config", (req, res) => {
     });
     
     child.on("close", () => {
-      res.write("\n---CONFIG---\n");
-      res.write(jsonString);
       res.end();
     });
   } catch (error) {
@@ -86,6 +84,17 @@ app.get("/config", (req, res) => {
     console.error("Error reading config:", error);
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+app.get("/download/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, "..", filename);
+  
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ success: false, error: "File not found" });
+  }
+  
+  res.download(filePath, filename);
 });
 
 const PORT = process.env.PORT || 3001;

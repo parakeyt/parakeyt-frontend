@@ -29,11 +29,9 @@ function App() {
       const response = await uploadConfiguration(config);
       console.log("Server response:", response);
       
-      if (response.output) {
-        const parts = response.output.split("\n---CONFIG---\n");
-        const configJson = parts[1] || response.output;
-        
-        const blob = new Blob([configJson], { type: 'application/json' });
+      if (response.success) {
+        const fileResponse = await fetch("http://localhost:3001/download/config.json");
+        const blob = await fileResponse.blob();
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
