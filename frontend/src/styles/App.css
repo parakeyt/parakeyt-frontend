@@ -46,7 +46,7 @@
   background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
   flex: 1;
   height: calc(100vh - 48px);
-  overflow: hidden;
+  overflow-y: auto;
   border-left: 1px solid #E2E8F0;
   padding: 20px;
   gap: 20px;
@@ -346,8 +346,8 @@
   padding: 40px;
   width: 95%;
   max-width: none;
-  height: 70vh;
-  min-height: 500px;
+  height: 55vh;
+  min-height: 400px;
   position: relative;
   overflow: hidden;
 }
@@ -544,4 +544,39 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup {
+  background: #222;
+  padding: 20px;
+  color: #fff;
+  max-height: 80vh;
+  max-width: 80vw;
+  overflow: auto;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.popup-content {
+  margin: 0;
 }

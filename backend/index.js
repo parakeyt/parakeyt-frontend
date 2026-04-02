@@ -48,7 +48,7 @@ app.post("/upload-config", (req, res) => {
     console.log("Config saved to:", CONFIG_PATH);
     console.log("Config contents:", config);
 
-    let child = spawn("python3", ["-c", "from time import sleep; print('hi'); sleep(1); print('hi')"])
+    let child = spawn("python3", ["-c", "from time import sleep; print('hi'); sleep(1); print('hi') "])
     
     res.writeHead(200, {
       'Content-Type': 'text/plain; charset=utf-8',

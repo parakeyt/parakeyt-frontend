@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./styles/App.css";
 import ConfigurationForm from "./components/ConfigurationForm";
 import KeyboardVisualization from "./components/KeyboardVisualization";
@@ -5,6 +6,9 @@ import { useKeyboardState } from "./hooks/useKeyboardState";
 import { generateConfiguration, uploadConfiguration } from "./utils/api";
 
 function App() {
+  const [streamOutput, setStreamOutput] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  
   const {
     mcu,
     split,
@@ -23,11 +27,13 @@ function App() {
 
   const handleGenerateJSON = async () => {
     const config = generateConfiguration(mcu, split, tilt, keys);
-    console.log("Generated JSON:", config);
+    setStreamOutput("");
+    setShowPopup(true);
     
     try {
-      const response = await uploadConfiguration(config);
-      console.log("Server response:", response);
+      const response = await uploadConfiguration(config, (chunk) => {
+        setStreamOutput(prev => prev + chunk);
+      });
       
       if (response.success) {
         const fileResponse = await fetch("http://localhost:3001/download/config.json");
@@ -43,6 +49,7 @@ function App() {
       }
     } catch (error) {
       console.error("Error saving to backend:", error);
+      setStreamOutput("Error: " + error.message);
     }
   };
 
@@ -85,8 +92,21 @@ function App() {
               Generate Configuration
             </button>
           </div>
+          
         </div>
       </div>
+      
+      {showPopup && (
+        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+          <div className="popup" onClick={e => e.stopPropagation()}>
+            <div className="popup-header">
+              <span>Output</span>
+              <button className="popup-close" onClick={() => setShowPopup(false)}>×</button>
+            </div>
+            <pre className="popup-content">{streamOutput || ""}</pre>
+          </div>
+        </div>
+      )}
     </>
   );
 }
