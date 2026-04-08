@@ -155,8 +155,8 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
       const mouseX = e.clientX - rect.left - dragOffset.x;
       const mouseY = e.clientY - rect.top - dragOffset.y;
       
-      const gridX = Math.max(0, Math.round(((mouseX - offsetX) / scale) * 2) / 2);
-      const gridY = Math.max(0, Math.round(((mouseY - offsetY) / scale) * 2) / 2);
+      const gridX = Math.max(0, Math.round(((mouseX - offsetX) / scale) * 4) / 4);
+      const gridY = Math.max(0, Math.round(((mouseY - offsetY) / scale) * 4) / 4);
       
       if (dragging.type === 'key' && onUpdateKey) {
         onUpdateKey(dragging.index, 'x', gridX.toString());
