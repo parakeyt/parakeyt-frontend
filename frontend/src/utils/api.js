@@ -86,6 +86,7 @@ export const generateConfiguration = (mcu, split, tilt, keys) => {
       y: sanitizeNumber(key.y),
       z: sanitizeNumber(key.z),
       size: sanitizeNumber(key.size),
+      rotation: sanitizeNumber(key.rotation),
       label: key.label
     }))
   };

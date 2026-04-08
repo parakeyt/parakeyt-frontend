@@ -30,16 +30,17 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
       const keyYVal = key.y === '' ? 0 : Number(key.y);
       const keySizeVal = key.size === '' ? 1 : Number(key.size);
       
-      const keyX = offsetX + keyXVal * scale;
-      const keyY = offsetY + keyYVal * scale;
+      // x,y is center of key
+      const keyCenterX = offsetX + keyXVal * scale;
+      const keyCenterY = offsetY + keyYVal * scale;
       const keyWidth = keySizeVal * scale - keyGap;
       const keyHeight = keyUnit;
       
       if (
-        mouseX >= keyX &&
-        mouseX <= keyX + keyWidth &&
-        mouseY >= keyY &&
-        mouseY <= keyY + keyHeight
+        mouseX >= keyCenterX - keyWidth / 2 &&
+        mouseX <= keyCenterX + keyWidth / 2 &&
+        mouseY >= keyCenterY - keyHeight / 2 &&
+        mouseY <= keyCenterY + keyHeight / 2
       ) {
         return { type: 'key', index: i };
       }
@@ -79,12 +80,14 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
       const keyYVal = key.y === '' ? 0 : Number(key.y);
       const keySizeVal = key.size === '' ? 1 : Number(key.size);
       
-      const keyX = offsetX + keyXVal * scale;
-      const keyY = offsetY + keyYVal * scale;
+      // x,y is center of key
+      const keyCenterX = offsetX + keyXVal * scale;
+      const keyCenterY = offsetY + keyYVal * scale;
       const keyWidth = keySizeVal * scale - keyGap;
+      const keyHeight = keyUnit;
       
-      const btnX = keyX + keyWidth - 8;
-      const btnY = keyY + 8;
+      const btnX = keyCenterX + keyWidth / 2 - 8;
+      const btnY = keyCenterY - keyHeight / 2 + 8;
       const btnRadius = 8;
       
       const distance = Math.sqrt((mouseX - btnX) ** 2 + (mouseY - btnY) ** 2);
@@ -93,7 +96,7 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
       }
     }
     return null;
-  }, [keys, keyGap]);
+  }, [keys, keyGap, keyUnit]);
 
   const handleMouseDown = useCallback((e) => {
     const deleteIndex = findDeleteButtonAt(e.clientX, e.clientY);
@@ -235,6 +238,16 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
     }
   }, [findElementAt, onRemoveKey]);
 
+  const handleWheel = useCallback((e) => {
+    const element = findElementAt(e.clientX, e.clientY);
+    if (element && element.type === 'key' && onUpdateKey) {
+      e.preventDefault();
+      const currentRotation = keys[element.index].rotation || 0;
+      const delta = e.deltaY > 0 ? 5 : -5;
+      onUpdateKey(element.index, 'rotation', currentRotation + delta);
+    }
+  }, [findElementAt, keys, onUpdateKey]);
+
   function drawRoundedRect(ctx, x, y, width, height, radius) {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
@@ -325,20 +338,25 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
       const keyXVal = key.x === '' ? 0 : Number(key.x);
       const keyYVal = key.y === '' ? 0 : Number(key.y);
       const keySizeVal = key.size === '' ? 1 : Number(key.size);
-      
-      const keyX = offsetX + keyXVal * scale;
-      const keyY = offsetY + keyYVal * scale;
+      const keyRotation = key.rotation === '' || key.rotation === undefined ? 0 : Number(key.rotation);
       
       const keyWidth = keySizeVal * scale - keyGap;
       const keyHeight = keyUnit;
       
       const isEditing = editingIndex === index;
       
+      const keyCenterX = offsetX + keyXVal * scale;
+      const keyCenterY = offsetY + keyYVal * scale;
+      
+      ctx.save();
+      ctx.translate(keyCenterX, keyCenterY);
+      ctx.rotate(keyRotation * Math.PI / 180);
+      
       ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      drawRoundedRect(ctx, keyX + 2, keyY + 2, keyWidth, keyHeight, 4);
+      drawRoundedRect(ctx, -keyWidth/2 + 2, -keyHeight/2 + 2, keyWidth, keyHeight, 4);
       ctx.fill();
       
-      const keyGradient = ctx.createLinearGradient(keyX, keyY, keyX + keyWidth, keyY + keyHeight);
+      const keyGradient = ctx.createLinearGradient(-keyWidth/2, -keyHeight/2, keyWidth/2, keyHeight/2);
       if (isEditing) {
         keyGradient.addColorStop(0, '#E6FFFA');
         keyGradient.addColorStop(0.5, '#B2F5EA');
@@ -353,19 +371,16 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
       ctx.strokeStyle = isEditing ? '#38A169' : '#A0AEC0';
       ctx.lineWidth = isEditing ? 2 : 1.5;
       
-      drawRoundedRect(ctx, keyX, keyY, keyWidth, keyHeight, 4);
+      drawRoundedRect(ctx, -keyWidth/2, -keyHeight/2, keyWidth, keyHeight, 4);
       ctx.fill();
       ctx.stroke();
       
       ctx.strokeStyle = '#FFFFFF';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(keyX + 4, keyY + 1);
-      ctx.lineTo(keyX + keyWidth - 4, keyY + 1);
+      ctx.moveTo(-keyWidth/2 + 4, -keyHeight/2 + 1);
+      ctx.lineTo(keyWidth/2 - 4, -keyHeight/2 + 1);
       ctx.stroke();
-      
-      const keyCenterX = keyX + keyWidth / 2;
-      const keyCenterY = keyY + keyHeight / 2;
       
       ctx.fillStyle = '#2D3748';
       ctx.font = 'bold 11px Inter, sans-serif';
@@ -377,16 +392,18 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
         label = editValue;
         if (cursorVisible) {
           const textWidth = ctx.measureText(label).width;
-          ctx.fillRect(keyCenterX + textWidth/2 + 1, keyCenterY - 7, 1, 14);
+          ctx.fillRect(textWidth/2 + 1, -7, 1, 14);
         }
       } else {
         label = key.label || `K${index + 1}`;
       }
-      ctx.fillText(label, keyCenterX, keyCenterY);
+      ctx.fillText(label, 0, 0);
+      
+      ctx.restore();
       
       if (hoveredKeyIndex === index && !isEditing) {
-        const btnX = keyX + keyWidth - 8;
-        const btnY = keyY + 8;
+        const btnX = keyCenterX + keyWidth / 2 - 8;
+        const btnY = keyCenterY - keyHeight / 2 + 8;
         const btnRadius = 7;
         
         ctx.beginPath();
@@ -453,6 +470,7 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
     canvas.addEventListener('click', handleCanvasClick);
     canvas.addEventListener('keydown', handleKeyDown);
     canvas.addEventListener('contextmenu', handleContextMenu);
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
       canvas.removeEventListener('mousedown', handleMouseDown);
@@ -463,13 +481,14 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
       canvas.removeEventListener('click', handleCanvasClick);
       canvas.removeEventListener('keydown', handleKeyDown);
       canvas.removeEventListener('contextmenu', handleContextMenu);
+      canvas.removeEventListener('wheel', handleWheel);
     };
-  }, [handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleDoubleClick, handleCanvasClick, handleKeyDown, handleContextMenu]);
+  }, [handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleDoubleClick, handleCanvasClick, handleKeyDown, handleContextMenu, handleWheel]);
 
   return (
     <div className="keyboard-visualization">
       <h3 className="visualization-title">Keyboard Layout Preview</h3>
-      <p className="visualization-hint">Drag to move • Double-click to rename • Right-click or hover to delete</p>
+      <p className="visualization-hint">Drag to move • Double-click to rename • Scroll to rotate • Right-click to delete</p>
       <canvas 
         ref={canvasRef}
         className="keyboard-canvas"

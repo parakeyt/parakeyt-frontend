@@ -66,6 +66,16 @@ function KeyCard({
           </div>
           
           <div className="input-group">
+            <label className="input-label">Rotation (degrees)</label>
+            <input
+              type="number"
+              className="input-field"
+              value={keyData.rotation}
+              onChange={(e) => handleInputChange('rotation', e.target.value === '' ? '' : Number(e.target.value))}
+            />
+          </div>
+          
+          <div className="input-group">
             <label className="input-label">Label</label>
             <input
               type="text"
