@@ -65,7 +65,7 @@ function ConfigurationForm({
         </div>
       </div>
 
-      <div className="section-card">
+      <div className="section-card hidden">
         <h3 className="section-title">Split Configuration</h3>
         <label className="checkbox-label">
           <span>Enable Split Keyboard</span>
