@@ -1,6 +1,10 @@
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
-export const sanitizeNumber = (value) => value === '' ? 0 : value;
+export const sanitizeNumber = (value) => {
+  if (value === '' || value === null || value === undefined) return 0;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
 
 export const uploadConfiguration = async (config, onStreamData) => {
   try {
@@ -53,24 +57,30 @@ export const uploadConfiguration = async (config, onStreamData) => {
 };
 
 export const generateConfiguration = (mcu, split, tilt, keys) => {
-  let maxWidth = 0;
-  let maxHeight = 0;
-  
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
   keys.forEach(key => {
     const x = sanitizeNumber(key.x);
     const y = sanitizeNumber(key.y);
     const size = sanitizeNumber(key.size);
-    
-    const keyRight = x + size;
-    const keyBottom = y + 1;
-    
-    if (keyRight > maxWidth) maxWidth = keyRight;
-    if (keyBottom > maxHeight) maxHeight = keyBottom;
+    const halfW = size / 2;
+    const halfH = 0.5;
+
+    minX = Math.min(minX, x - halfW);
+    maxX = Math.max(maxX, x + halfW);
+    minY = Math.min(minY, y - halfH);
+    maxY = Math.max(maxY, y + halfH);
   });
 
+  const width = keys.length && Number.isFinite(minX) ? maxX - minX : 0;
+  const height = keys.length && Number.isFinite(minY) ? maxY - minY : 0;
+
   return {
-    width: maxWidth,
-    height: maxHeight,
+    width,
+    height,
     mcu: {
       pos: {
         x: sanitizeNumber(mcu.pos.x),
