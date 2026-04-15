@@ -56,6 +56,80 @@ export const uploadConfiguration = async (config, onStreamData) => {
   }
 };
 
+export const parseImportedConfiguration = (data) => {
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('Configuration must be a JSON object.');
+  }
+
+  const mcu = data.mcu;
+  if (!mcu || typeof mcu !== 'object' || Array.isArray(mcu)) {
+    throw new Error('Missing or invalid "mcu" object.');
+  }
+
+  const pos = mcu.pos;
+  if (!pos || typeof pos !== 'object' || Array.isArray(pos)) {
+    throw new Error('Missing or invalid "mcu.pos".');
+  }
+
+  const split = Boolean(data.split);
+  const tilt = sanitizeNumber(data.tilt);
+
+  const keysRaw = data.keys;
+  if (!Array.isArray(keysRaw) || keysRaw.length === 0) {
+    throw new Error('Configuration must include a non-empty "keys" array.');
+  }
+
+  const keys = keysRaw.map((key, i) => {
+    if (!key || typeof key !== 'object' || Array.isArray(key)) {
+      throw new Error(`Invalid key at index ${i}.`);
+    }
+    return {
+      x: sanitizeNumber(key.x),
+      y: sanitizeNumber(key.y),
+      z: sanitizeNumber(key.z),
+      size: sanitizeNumber(key.size),
+      rotation: sanitizeNumber(key.rotation),
+      label: typeof key.label === 'string' ? key.label : String(key.label ?? ''),
+    };
+  });
+
+  return {
+    mcu: {
+      pos: {
+        x: sanitizeNumber(pos.x),
+        y: sanitizeNumber(pos.y),
+        z: sanitizeNumber(pos.z),
+      },
+      size: sanitizeNumber(mcu.size),
+    },
+    split,
+    tilt,
+    keys,
+  };
+};
+
+export const readConfigurationFromFile = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = String(reader.result ?? '');
+        const data = JSON.parse(text);
+        resolve(parseImportedConfiguration(data));
+      } catch (err) {
+        reject(
+          err instanceof SyntaxError
+            ? new Error('Invalid JSON file.')
+            : err instanceof Error
+              ? err
+              : new Error(String(err))
+        );
+      }
+    };
+    reader.onerror = () => reject(new Error('Could not read file.'));
+    reader.readAsText(file);
+  });
+
 export const generateConfiguration = (mcu, split, tilt, keys) => {
   let minX = Infinity;
   let maxX = -Infinity;

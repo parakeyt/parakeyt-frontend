@@ -3,12 +3,17 @@ import "./styles/App.css";
 import ConfigurationForm from "./components/ConfigurationForm";
 import KeyboardVisualization from "./components/KeyboardVisualization";
 import { useKeyboardState } from "./hooks/useKeyboardState";
-import { generateConfiguration, uploadConfiguration } from "./utils/api";
+import {
+  generateConfiguration,
+  readConfigurationFromFile,
+  uploadConfiguration,
+} from "./utils/api";
 
 function App() {
   const [streamOutput, setStreamOutput] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-  
+  const [loadFeedback, setLoadFeedback] = useState(null);
+
   const {
     mcu,
     split,
@@ -22,7 +27,8 @@ function App() {
     addKey,
     removeKey,
     updateKey,
-    toggleKeyExpansion
+    toggleKeyExpansion,
+    loadConfiguration
   } = useKeyboardState();
 
   const handleGenerateJSON = async () => {
@@ -50,6 +56,19 @@ function App() {
     } catch (error) {
       console.error("Error saving to backend:", error);
       setStreamOutput("Error: " + error.message);
+    }
+  };
+
+  const handleConfigFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      loadConfiguration(await readConfigurationFromFile(file));
+      setLoadFeedback({ error: false, message: "Configuration loaded." });
+      window.setTimeout(() => setLoadFeedback(null), 4000);
+    } catch (err) {
+      setLoadFeedback({ error: true, message: err.message });
     }
   };
 
@@ -84,15 +103,33 @@ function App() {
             onRemoveKey={removeKey}
           />
           
-          <div className="main-buttons">
-            <button onClick={addKey} className="add-key-button-main">
-              + Add Key
-            </button>
-            <button onClick={handleGenerateJSON} className="generate-button">
-              Generate Configuration
-            </button>
+          <div className="main-actions">
+            <div className="main-buttons">
+              <button type="button" onClick={addKey} className="add-key-button-main">
+                + Add Key
+              </button>
+              <label className="add-key-button-main load-config-label">
+                Load configuration
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  className="file-input-hidden"
+                  onChange={handleConfigFileChange}
+                />
+              </label>
+              <button type="button" onClick={handleGenerateJSON} className="generate-button">
+                Generate Configuration
+              </button>
+            </div>
+            {loadFeedback && (
+              <p
+                className={`load-feedback load-feedback--${loadFeedback.error ? "error" : "ok"}`}
+                role={loadFeedback.error ? "alert" : "status"}
+              >
+                {loadFeedback.message}
+              </p>
+            )}
           </div>
-          
         </div>
       </div>
       

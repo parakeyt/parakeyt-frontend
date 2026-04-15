@@ -144,6 +144,14 @@ export const useKeyboardState = () => {
     });
   };
 
+  const loadConfiguration = ({ mcu: nextMcu, split: nextSplit, tilt: nextTilt, keys: nextKeys }) => {
+    setMcu(nextMcu);
+    setSplit(nextSplit);
+    setTilt(nextTilt);
+    setKeys(nextKeys);
+    setExpandedKeys(new Set());
+  };
+
   return {
     mcu,
     split,
@@ -158,6 +166,7 @@ export const useKeyboardState = () => {
     addKey,
     removeKey,
     updateKey,
-    toggleKeyExpansion
+    toggleKeyExpansion,
+    loadConfiguration
   };
 };
