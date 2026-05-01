@@ -440,6 +440,36 @@
   flex-wrap: wrap;
 }
 
+.bom-card {
+  width: 95%;
+  margin-bottom: 0;
+}
+
+.bom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.bom-table th,
+.bom-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.bom-table th {
+  font-weight: 600;
+  color: #2D3748;
+  background-color: #F8FAFC;
+}
+
+.bom-table tfoot td {
+  font-weight: 700;
+  border-top: 2px solid #CBD5E0;
+  border-bottom: none;
+}
+
 .generate-button {
   background: linear-gradient(135deg, #38A169 0%, #2F855A 100%);
   color: #FFFFFF;
@@ -478,6 +508,26 @@
   color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+}
+
+.clear-keys-button {
+  background-color: #FFFFFF;
+  color: #C53030;
+  border: 2px solid #C53030;
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.025em;
+}
+
+.clear-keys-button:hover {
+  background: linear-gradient(135deg, #C53030 0%, #9B2C2C 100%);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(197, 48, 48, 0.3);
 }
 
 .add-key-button {

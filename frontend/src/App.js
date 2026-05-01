@@ -25,10 +25,37 @@ function App() {
     setTilt,
     addKey,
     removeKey,
+    clearKeys,
     updateKey,
     toggleKeyExpansion,
     loadConfiguration
   } = useKeyboardState();
+
+  const bom = (() => {
+    const layout = generateConfiguration(mcu, split, tilt, keys);
+    const keyCount = keys.length;
+    const area = layout.width * layout.height;
+
+    // Initial placeholder costs; easy to tune later.
+    const fixedKeyboardCost = 25;
+    const costPerKey = 0.45;
+    const costPerAreaUnit = 0.12;
+
+    const keysCost = keyCount * costPerKey;
+    const areaCost = area * costPerAreaUnit;
+    const totalCost = fixedKeyboardCost + keysCost + areaCost;
+
+    return {
+      keyCount,
+      area,
+      fixedKeyboardCost,
+      costPerKey,
+      costPerAreaUnit,
+      keysCost,
+      areaCost,
+      totalCost,
+    };
+  })();
 
   const handleGenerateJSON = async () => {
     const config = generateConfiguration(mcu, split, tilt, keys);
@@ -106,6 +133,9 @@ function App() {
               <button type="button" onClick={addKey} className="add-key-button-main">
                 + Add Key
               </button>
+              <button type="button" onClick={clearKeys} className="clear-keys-button">
+                Clear Keys
+              </button>
               <label className="add-key-button-main load-config-label">
                 Load configuration
                 <input
@@ -127,6 +157,46 @@ function App() {
                 {loadFeedback.message}
               </p>
             )}
+          </div>
+
+          <div className="bom-card section-card">
+            <h3 className="section-title">Bill of Materials</h3>
+            <table className="bom-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Rate</th>
+                  <th>Quantity</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Fixed keyboard cost</td>
+                  <td>${bom.fixedKeyboardCost.toFixed(2)}</td>
+                  <td>1</td>
+                  <td>${bom.fixedKeyboardCost.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Cost per key</td>
+                  <td>${bom.costPerKey.toFixed(2)}</td>
+                  <td>{bom.keyCount}</td>
+                  <td>${bom.keysCost.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Cost for area</td>
+                  <td>${bom.costPerAreaUnit.toFixed(2)} / unit²</td>
+                  <td>{bom.area.toFixed(2)}</td>
+                  <td>${bom.areaCost.toFixed(2)}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="3">Total</td>
+                  <td>${bom.totalCost.toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
       </div>
