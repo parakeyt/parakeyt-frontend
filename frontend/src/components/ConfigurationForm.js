@@ -6,7 +6,6 @@ function ConfigurationForm({
   tilt,
   keys,
   expandedKeys,
-  onUpdateMcu,
   onUpdateMcuPos,
   onSetSplit,
   onSetTilt,
@@ -42,25 +41,14 @@ function ConfigurationForm({
               />
             </div>
           </div>
-          <div className="input-row">
-            <div className="input-group">
-              <label className="input-label">Z Position</label>
-              <input
-                type="number"
-                className="input-field mcu-input"
-                value={mcu.pos.z}
-                onChange={(e) => onUpdateMcuPos('z', e.target.value === '' ? '' : Number(e.target.value))}
-              />
-            </div>
-            <div className="input-group">
-              <label className="input-label">Size</label>
-              <input
-                type="number"
-                className="input-field mcu-input"
-                value={mcu.size}
-                onChange={(e) => onUpdateMcu('size', e.target.value === '' ? '' : Number(e.target.value))}
-              />
-            </div>
+          <div className="input-group">
+            <label className="input-label">Z Position</label>
+            <input
+              type="number"
+              className="input-field mcu-input"
+              value={mcu.pos.z}
+              onChange={(e) => onUpdateMcuPos('z', e.target.value === '' ? '' : Number(e.target.value))}
+            />
           </div>
         </div>
       </div>

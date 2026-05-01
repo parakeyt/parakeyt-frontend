@@ -1,5 +1,8 @@
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
+export const MCU_WIDTH_UNITS = 1;
+export const MCU_HEIGHT_UNITS = 1.3;
+
 export const sanitizeNumber = (value) => {
   if (value === '' || value === null || value === undefined) return 0;
   const n = Number(value);
@@ -100,7 +103,6 @@ export const parseImportedConfiguration = (data) => {
         y: sanitizeNumber(pos.y),
         z: sanitizeNumber(pos.z),
       },
-      size: sanitizeNumber(mcu.size),
     },
     split,
     tilt,
@@ -153,12 +155,11 @@ export const generateConfiguration = (mcu, split, tilt, keys) => {
     expandBounds(x - halfW, x + halfW, y - halfH, y + halfH);
   });
 
-  // MCU uses the same grid as keys; preview draws it square with side mcu.size in key units (center at pos).
   const mx = sanitizeNumber(mcu.pos.x);
   const my = sanitizeNumber(mcu.pos.y);
-  const ms = sanitizeNumber(mcu.size);
-  const mcuHalf = ms / 2;
-  expandBounds(mx - mcuHalf, mx + mcuHalf, my - mcuHalf, my + mcuHalf);
+  const halfMW = MCU_WIDTH_UNITS / 2;
+  const halfMH = MCU_HEIGHT_UNITS / 2;
+  expandBounds(mx - halfMW, mx + halfMW, my - halfMH, my + halfMH);
 
   const hasBounds =
     Number.isFinite(minX) &&
@@ -177,7 +178,8 @@ export const generateConfiguration = (mcu, split, tilt, keys) => {
         y: sanitizeNumber(mcu.pos.y),
         z: sanitizeNumber(mcu.pos.z)
       },
-      size: sanitizeNumber(mcu.size)
+      width: MCU_WIDTH_UNITS,
+      height: MCU_HEIGHT_UNITS
     },
     split,
     tilt: sanitizeNumber(tilt),

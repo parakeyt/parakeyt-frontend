@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { MCU_WIDTH_UNITS, MCU_HEIGHT_UNITS } from '../utils/api';
 
 function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMcuPos, onRemoveKey }) {
   const canvasRef = useRef(null);
@@ -48,17 +49,19 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
     
     const mcuXVal = mcu.pos.x === '' ? 1 : Number(mcu.pos.x);
     const mcuYVal = mcu.pos.y === '' ? 3 : Number(mcu.pos.y);
-    const mcuSizeVal = mcu.size === '' ? 1 : Number(mcu.size);
     
     const mcuX = offsetX + mcuXVal * scale;
     const mcuY = offsetY + mcuYVal * scale;
-    const mcuSize = Math.max(mcuSizeVal * scale, 40);
+    const mcuKeyGap = scale * 0.1;
+    const mcuKeyUnit = scale * 0.9;
+    const mcuW = MCU_WIDTH_UNITS * scale - mcuKeyGap;
+    const mcuH = MCU_HEIGHT_UNITS * mcuKeyUnit;
     
     if (
-      mouseX >= mcuX - mcuSize / 2 &&
-      mouseX <= mcuX + mcuSize / 2 &&
-      mouseY >= mcuY - mcuSize / 2 &&
-      mouseY <= mcuY + mcuSize / 2
+      mouseX >= mcuX - mcuW / 2 &&
+      mouseX <= mcuX + mcuW / 2 &&
+      mouseY >= mcuY - mcuH / 2 &&
+      mouseY <= mcuY + mcuH / 2
     ) {
       return { type: 'mcu' };
     }
@@ -299,28 +302,29 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
     
     const mcuXVal = mcu.pos.x === '' ? 1 : Number(mcu.pos.x);
     const mcuYVal = mcu.pos.y === '' ? 3 : Number(mcu.pos.y);
-    const mcuSizeVal = mcu.size === '' ? 1 : Number(mcu.size);
     
     const mcuX = offsetX + mcuXVal * scale;
     const mcuY = offsetY + mcuYVal * scale;
-    const mcuSize = Math.max(mcuSizeVal * scale, 40);
+    const drawKeyGap = scale * 0.1;
+    const drawKeyUnit = scale * 0.9;
+    const mcuW = MCU_WIDTH_UNITS * scale - drawKeyGap;
+    const mcuH = MCU_HEIGHT_UNITS * drawKeyUnit;
     
-    
-    const mcuGradient = ctx.createLinearGradient(mcuX - mcuSize/2, mcuY - mcuSize/2, mcuX + mcuSize/2, mcuY + mcuSize/2);
+    const mcuGradient = ctx.createLinearGradient(mcuX - mcuW/2, mcuY - mcuH/2, mcuX + mcuW/2, mcuY + mcuH/2);
     mcuGradient.addColorStop(0, '#1A1A1A');
     mcuGradient.addColorStop(1, '#000000');
     ctx.fillStyle = mcuGradient;
     ctx.strokeStyle = '#333333';
     ctx.lineWidth = 2;
-    drawRoundedRect(ctx, mcuX - mcuSize/2, mcuY - mcuSize/2, mcuSize, mcuSize, 4);
+    drawRoundedRect(ctx, mcuX - mcuW/2, mcuY - mcuH/2, mcuW, mcuH, 4);
     ctx.fill();
     ctx.stroke();
     
     ctx.fillStyle = '#FFD700';
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
-        const pinX = mcuX - mcuSize/2 + 8 + i * (mcuSize - 16) / 3;
-        const pinY = mcuY - mcuSize/2 + 8 + j * (mcuSize - 16) / 3;
+        const pinX = mcuX - mcuW/2 + 8 + i * (mcuW - 16) / 3;
+        const pinY = mcuY - mcuH/2 + 8 + j * (mcuH - 16) / 3;
         ctx.fillRect(pinX - 1, pinY - 1, 2, 2);
       }
     }
@@ -331,8 +335,8 @@ function KeyboardVisualization({ mcu, keys, split, tilt, onUpdateKey, onUpdateMc
     ctx.textBaseline = 'middle';
     ctx.fillText('MCU', mcuX, mcuY);
     
-    const keyUnit = scale * 0.9;
-    const keyGap = scale * 0.1;
+    const keyUnit = drawKeyUnit;
+    const keyGap = drawKeyGap;
     
     keys.forEach((key, index) => {
       const keyXVal = key.x === '' ? 0 : Number(key.x);

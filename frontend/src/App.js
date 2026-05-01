@@ -21,7 +21,6 @@ function App() {
     keys,
     expandedKeys,
     updateMcuPos,
-    updateMcu,
     setSplit,
     setTilt,
     addKey,
@@ -82,7 +81,6 @@ function App() {
           tilt={tilt}
           keys={keys}
           expandedKeys={expandedKeys}
-          onUpdateMcu={updateMcu}
           onUpdateMcuPos={updateMcuPos}
           onSetSplit={setSplit}
           onSetTilt={setTilt}

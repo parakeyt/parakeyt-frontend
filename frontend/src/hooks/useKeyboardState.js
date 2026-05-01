@@ -1,9 +1,8 @@
 import { useState } from 'react';
 
 export const useKeyboardState = () => {
-  const [mcu, setMcu] = useState({ 
-    pos: { x: 0, y: 6, z: 0 }, 
-    size: 1 
+  const [mcu, setMcu] = useState({
+    pos: { x: 0, y: 6, z: 0 },
   });
   const [split, setSplit] = useState(false);
   const [tilt, setTilt] = useState(0);
@@ -82,10 +81,6 @@ export const useKeyboardState = () => {
     }));
   };
 
-  const updateMcu = (field, value) => {
-    setMcu(prev => ({ ...prev, [field]: value }));
-  };
-
   const addKey = () => {
     let maxY = 0;
     keys.forEach(key => {
@@ -160,7 +155,6 @@ export const useKeyboardState = () => {
     expandedKeys,
     
     updateMcuPos,
-    updateMcu,
     setSplit,
     setTilt,
     addKey,
