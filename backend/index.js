@@ -49,7 +49,7 @@ app.post("/upload-config", (req, res) => {
     console.log("Config contents:", config);
 
     console.log("starting")
-    let child = spawn("python3", ["../../parakeyt-docs/pipeline/parakeyt_pipeline.py", CONFIG_PATH])
+    let child = spawn("python3", ["../../../parakeyt-docs/pipeline/parakeyt_pipeline.py", CONFIG_PATH])
 
     console.log("started", child)
     
