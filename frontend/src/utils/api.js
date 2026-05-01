@@ -166,8 +166,8 @@ export const generateConfiguration = (mcu, split, tilt, keys) => {
     Number.isFinite(maxX) &&
     Number.isFinite(minY) &&
     Number.isFinite(maxY);
-  const width = hasBounds ? maxX - minX : 0;
-  const height = hasBounds ? maxY - minY : 0;
+  const width = hasBounds ? maxX - 0 : 0;
+  const height = hasBounds ? maxY - 0 : 0;
 
   return {
     width,
