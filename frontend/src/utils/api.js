@@ -136,6 +136,13 @@ export const generateConfiguration = (mcu, split, tilt, keys) => {
   let minY = Infinity;
   let maxY = -Infinity;
 
+  const expandBounds = (xLo, xHi, yLo, yHi) => {
+    minX = Math.min(minX, xLo);
+    maxX = Math.max(maxX, xHi);
+    minY = Math.min(minY, yLo);
+    maxY = Math.max(maxY, yHi);
+  };
+
   keys.forEach(key => {
     const x = sanitizeNumber(key.x);
     const y = sanitizeNumber(key.y);
@@ -143,14 +150,23 @@ export const generateConfiguration = (mcu, split, tilt, keys) => {
     const halfW = size / 2;
     const halfH = 0.5;
 
-    minX = Math.min(minX, x - halfW);
-    maxX = Math.max(maxX, x + halfW);
-    minY = Math.min(minY, y - halfH);
-    maxY = Math.max(maxY, y + halfH);
+    expandBounds(x - halfW, x + halfW, y - halfH, y + halfH);
   });
 
-  const width = keys.length && Number.isFinite(minX) ? maxX - minX : 0;
-  const height = keys.length && Number.isFinite(minY) ? maxY - minY : 0;
+  // MCU uses the same grid as keys; preview draws it square with side mcu.size in key units (center at pos).
+  const mx = sanitizeNumber(mcu.pos.x);
+  const my = sanitizeNumber(mcu.pos.y);
+  const ms = sanitizeNumber(mcu.size);
+  const mcuHalf = ms / 2;
+  expandBounds(mx - mcuHalf, mx + mcuHalf, my - mcuHalf, my + mcuHalf);
+
+  const hasBounds =
+    Number.isFinite(minX) &&
+    Number.isFinite(maxX) &&
+    Number.isFinite(minY) &&
+    Number.isFinite(maxY);
+  const width = hasBounds ? maxX - minX : 0;
+  const height = hasBounds ? maxY - minY : 0;
 
   return {
     width,
